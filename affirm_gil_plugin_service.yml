@@ -1,0 +1,1244 @@
+openapi: "3.0.1"
+info:
+  title: "Global Installments Lending - US"
+  description: "This API will be implemented by the issuing partner to facilitate the GIL lending product to customers."
+  version: "v1.0"
+tags:
+  - AffirmGILPlugin
+servers:
+  - url: https://{endpoint}
+    description: "Base server for all API calls - forces TLS"
+    variables:
+      endpoint:
+        default: localhost
+        description: "The endpoint (DNS name) of the server we will call"
+paths:
+  /api/v1/transactions:
+    post:
+      tags:
+        - AffirmGILPlugin
+      operationId: "post_create_purchase"
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Request-Id
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Country-Code
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AffirmTokenRequest"
+        required: true
+      responses:
+        "200":
+          "description": "Purchase created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffirmJWSTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /api/v1/transactions/{purchase_id}:
+    get:
+      tags:
+        - AffirmGILPlugin
+      operationId: "get_retrieve_purchase"
+      parameters:
+        - in: "path"
+          name: "purchase_id"
+          required: true
+          schema:
+            type: "string"
+        - in: "query"
+          name: "expand"
+          required: true
+          schema:
+            type: "string"
+        - in: header
+          name: Idempotency-Key
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Request-Id
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Country-Code
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          "description": "Purchase retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffirmJWETokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /api/partner/v1/applications:
+    post:
+      tags:
+        - AffirmGILPlugin
+      operationId: "post_create_loan"
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Request-Id
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Country-Code
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AffirmTokenRequest"
+        required: true
+      responses:
+        "200":
+          description: "Loan created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffirmJWSTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /api/partner/v1/applications/{application_id}:
+    get:
+      tags:
+        - AffirmGILPlugin
+      operationId: "get_retrieve_loan"
+      parameters:
+        - name: "application_id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+        - in: header
+          name: Request-Id
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Idempotency-Key
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Country-Code
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: "Loan retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffirmJWETokenResponse"
+        "401":
+          $ref: "#/components/responses/UnAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /api/v1/transactions/{purchase_id}/capture:
+    post:
+      tags:
+        - AffirmGILPlugin
+      operationId: "post_capture_purchase"
+      parameters:
+        - name: "purchase_id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+        - in: header
+          name: Idempotency-Key
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Request-Id
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Country-Code
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AffirmTokenRequest"
+        required: true
+      responses:
+        "200":
+          description: "Purchase captured successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffirmJWSTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /api/v1/transactions/{purchase_id}/refund:
+    post:
+      tags:
+        - AffirmGILPlugin
+      operationId: "post_refund_purchase"
+      parameters:
+        - name: "purchase_id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+        - in: header
+          name: Idempotency-Key
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Request-Id
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Country-Code
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AffirmTokenRequest"
+        required: true
+      responses:
+        "200":
+          description: "Purchase refunded successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffirmJWSTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /api/v1/transactions/{purchase_id}/void:
+    post:
+      tags:
+        - AffirmGILPlugin
+      operationId: "post_void_purchase"
+      parameters:
+        - name: "purchase_id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+        - in: header
+          name: Idempotency-Key
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Request-Id
+          schema:
+            type: string
+          required: false
+        - in: header
+          name: Country-Code
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AffirmTokenRequest"
+        required: true
+      responses:
+        "200":
+          description: "Purchase voided successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffirmJWSTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /api/v2/checkout/direct:
+    post:
+      tags:
+        - AffirmGILPlugin
+      operationId: "direct_checkout"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AffirmTokenRequest"
+      responses:
+        "200":
+          "description": "Redirect checkout link for a new loan application created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffirmJWSTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v2/checkout/{checkout_id}:
+    get:
+      tags:
+        - AffirmGILPlugin
+      operationId: "read_checkout"
+      parameters:
+        - name: "checkout_id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          "description": "Checkout retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffirmJWETokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/promos/v2/{merchant_public_key}:
+    get:
+      tags:
+        - AffirmGILPlugin
+      operationId: "get_ala_message"
+      parameters:
+        - in: path
+          name: merchant_public_key
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page_type
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: amount
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: use_best_terms
+          required: true
+          schema:
+            type: boolean
+      responses:
+        "200":
+          "description": "ALA message retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AffirmJWSTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequest:
+      description: "Bad Request - the request could not be understood by the server due to malformed syntax. The client SHOULD NOT repeat the request without modifications."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    UnAuthorized:
+      description: "Un Authorized - System is not authorized to make the request, necessary authorization header is not included or unsupported authorization header included"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: "Not Found - server has not found a resource with that URI. This may be temporary and permanent condition. This status code is commonly used when the server does not wish to reveal exactly why the request has been refused, or when no other response is applicable."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    InternalServerError:
+      description: "Internal Server Error - server encountered an error processing request. This should not happen normally, but it is a generic error message, given when no more specific message is suitable."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    AffirmTokenRequest:
+      description: "This type has similar fields to teh JWS and JWE response types but is defined separately to avoid coupling if changes are needed down the road"
+      required:
+        - "token"
+      type: "object"
+      properties:
+        token:
+          type: "string"
+          description: "A JWT token - either signed or encrypted and signed. An echo of the bearer token."
+    AffirmJWSTokenResponse:
+      required:
+        - "token"
+      type: "object"
+      properties:
+        token:
+          type: "string"
+          description: "A JWS signed token"
+    AffirmJWETokenResponse:
+      required:
+        - "token"
+      type: "object"
+      properties:
+        token:
+          type: "string"
+          description: "A nested JWT token - it is a JWE token whose inner payload is a signed JWS token"
+    AffirmCreateLoanRequest:
+      required:
+        - "amount"
+        - "buyer"
+        - "currency"
+        - "financing_type"
+        - "merchant"
+        - "shipping_address"
+      type: "object"
+      properties:
+        amount:
+          $ref: "#/components/schemas/Amount"
+        buyer:
+          $ref: "#/components/schemas/Buyer"
+        currency:
+          type: "string"
+        financing_type:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+              - "installment_loan"
+              - "split_pay"
+              - "mdr_installment_loan"
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Item"
+        merchant:
+          $ref: "#/components/schemas/Merchant"
+        shipping_address:
+          $ref: "#/components/schemas/Address"
+        underwrite:
+          type: "boolean"
+        metadata:
+          $ref: "#/components/schemas/AffirmCreateLoanRequestMetaData"
+      description: "Request type for the create loan operation"
+    AffirmCreateLoanResponse:
+      required:
+        - "application_id"
+        - "code"
+        - "message"
+        - "redirect_url"
+      type: "object"
+      properties:
+        application_id:
+          type: "string"
+        buyer_id:
+          type: "string"
+        redirect_url:
+          type: "string"
+        code:
+          type: "string"
+        message:
+          type: "string"
+      description: "Response type for the create loan operation"
+    AffirmRetrieveLoanResponse:
+      required:
+        - "amount"
+        - "buyer_id"
+        - "created_at"
+        - "currency"
+        - "items"
+        - "shipping_address"
+        - "status"
+      type: "object"
+      properties:
+        buyer_id:
+          type: "string"
+        amount:
+          $ref: "#/components/schemas/Amount"
+        created_at:
+          type: "string"
+        currency:
+          type: "string"
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Item"
+        order_ids:
+          type: "array"
+          items:
+            type: "string"
+        shipping_address:
+          $ref: "#/components/schemas/Address"
+        status:
+          type: "string"
+          enum:
+            - "unknown"
+            - "confirmed"
+            - "opened"
+            - "approved"
+            - "declined"
+            - "error"
+            - "more_info"
+        declination_status:
+          type: "string"
+          enum:
+            - "credit_declined"
+            - "credit_frozen"
+            - "extended_fraud"
+            - "fraud_declined"
+            - "identity_declined"
+        plans:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Plan"
+        selected_plan:
+          $ref: "#/components/schemas/Plan"
+        metadata:
+          $ref: "#/components/schemas/AffirmCreateLoanRequestMetaData"
+      description: "Response type for the retrieve loan operation"
+    AffirmGetAlaMessageResponse:
+      required:
+        - "promo"
+        - "offer"
+      type: "object"
+      properties:
+        promo:
+            $ref: "#/components/schemas/Promo"
+        offer:
+          $ref: "#/components/schemas/Offer"
+
+    AffirmCreatePurchaseRequest:
+      required:
+        - "transaction_id"
+      type: "object"
+      properties:
+        transaction_id:
+          type: "string"
+          description: "This is the loan application ID by another name"
+      description: "Request type for the create purchase operation"
+    AffirmVoidPurchaseRequest:
+      type: "object"
+      properties:
+        amount:
+          type: "integer"
+          description: "The amount to be voided in the purchase"
+        metadata:
+          $ref: "#/components/schemas/AffirmPaymentExecutionRequestMetaData"
+        reference_id:
+          type: "string"
+          description: "Unique identifier that may be associated with each transaction event, reconciled with the system of record used by Amazon."
+      description: "Request type for the void purchase operation"
+    AffirmCapturePurchaseRequest:
+      required:
+        - "metadata"
+      type: "object"
+      properties:
+        order_ids:
+          type: "array"
+          items:
+            type: "string"
+        reference_id:
+          type: "string"
+        shipping_carrier:
+          type: "string"
+        shipping_confirmation:
+          type: "string"
+        metadata:
+          $ref: "#/components/schemas/AffirmPaymentExecutionRequestMetaData"
+      description: "Request type for the capture purchase operation"
+    AffirmRefundPurchaseRequest:
+      required:
+        - "metadata"
+      type: "object"
+      properties:
+        amount:
+          type: "integer"
+        reference_id:
+          type: "string"
+        metadata:
+          $ref: "#/components/schemas/AffirmPaymentExecutionRequestMetaData"
+      description: "Request type for the refund purchase operation"
+    AffirmDirectCheckoutRequest:
+      required:
+        - "merchant"
+        - "total"
+        - "shipping"
+      type: "object"
+      properties:
+        merchant:
+          $ref: "#/components/schemas/NonRetailMerchant"
+        billing:
+          $ref: "#/components/schemas/NonRetailBillingAddress"
+        total:
+          type: "integer"
+        order_id:
+          type: "string"
+        tax_amount:
+          type: "integer"
+        shipping:
+          $ref: "#/components/schemas/NonRetailShippingAddress"
+      description: "Request for redirecting checkout to Affirm's loan application flow for Checkout API"
+    AffirmDirectCheckoutResponse:
+      type: "object"
+      properties:
+        redirect_url:
+          type: "string"
+        checkout_id:
+          type: "string"
+      description: "Response containing a redirect link for a new loan application with Affirm for Checkout API"
+    AffirmReadCheckoutResponse:
+      type: "object"
+      properties:
+        billing_frequency:
+          type: "string"
+        currency:
+          type: "string"
+        meta:
+          $ref: "#/components/schemas/AffirmReadCheckoutResponseMeta"
+        total:
+          type: "integer"
+        financial_program_external_name:
+          type: "string"
+        financial_program_name:
+          type: "string"
+        checkout_flow_type:
+          type: "string"
+        billing:
+          $ref: "#/components/schemas/NonRetailBillingAddress"
+        shipping_amount:
+          type: "integer"
+        config:
+          type: "string"
+        product_type:
+          type: "string"
+        api_version:
+          type: "string"
+        metadata:
+          $ref: "#/components/schemas/AffirmReadCheckoutResponseMetadata"
+        merchant:
+          $ref: "#/components/schemas/NonRetailMerchant"
+        product:
+          type: "string"
+        order_id:
+          type: "string"
+        suppress_expiration_declination_messaging:
+          type: "boolean"
+        mfp_rule_input_data:
+          $ref: "#/components/schemas/mfp_rule_input_data"
+        loan_type:
+          type: "string"
+        checkout_type:
+          type: "string"
+        tax_amount:
+          type: "integer"
+        checkout_status:
+          type: "string"
+          enum:
+            - "unknown"
+            - "confirmed"
+            - "opened"
+            - "approved"
+            - "declined"
+            - "error"
+            - "more_info"
+        shipping:
+          $ref: "#/components/schemas/NonRetailShippingAddress"
+        use_adaptive:
+          type: "boolean"
+        financing_program:
+          type: "string"
+        merchant_external_reference:
+          type: "integer"
+      description: "Response with details about the loan application with the given checkout_id for Checkout API"
+    Address:
+      type: "object"
+      properties:
+        city:
+          type: "string"
+        country_code:
+          type: "string"
+        street1:
+          type: "string"
+        street2:
+          type: "string"
+        region1_code:
+          type: "string"
+        postal_code:
+          type: "string"
+      description: "Address of the buyer"
+    TransactionEvent:
+      required:
+        - "amount"
+        - "created"
+        - "id"
+        - "type"
+      type: "object"
+      properties:
+        amount:
+          type: "integer"
+          description: "Amount of the purchase (approved loan). In cents"
+        created:
+          type: "string"
+          description: "RFC 3339 format"
+        currency:
+          type: "string"
+          description: "ISO 4217 format"
+        fee:
+          type: "integer"
+          description: "Merchant fee"
+        fee_refunded:
+          type: "string"
+          description: "Refunded amount of merchant fee"
+        id:
+          type: "string"
+          description: "Unique ID for the transaction event"
+        reference_id:
+          type: "string"
+          description: "Optional ID. Generally Amazon signature"
+        shipping_confirmation:
+          type: "string"
+          description: "Not used today by Amazon."
+        shipping_carrier:
+          type: "string"
+          description: "Not used today by Amazon."
+        metadata:
+          $ref: "#/components/schemas/AffirmPaymentExecutionRequestMetaData"
+        type:
+          type: "string"
+          enum:
+            - "auth"
+            - "capture"
+            - "confirm"
+            - "refund"
+            - "update"
+            - "void"
+            - "partial_void"
+            - "auth_expired"
+    Purchase:
+      type: "object"
+      properties:
+        amount:
+          type: "integer"
+          description: "Amount of the purchase (approved loan). In cents"
+        amount_refunded:
+          type: "integer"
+          description: "Amount refunded back to the customer. In cents"
+        authorization_expiration:
+          type: "string"
+          description: "RFC 3393. The time at which the loan is no longer able to be captured"
+        checkout_id:
+          type: "string"
+          description: "A unique identifier for the loan object"
+        created:
+          type: "string"
+          description: "RFC 3339 format"
+        currency:
+          type: "string"
+          description: "ISO 4217 format"
+        id:
+          type: "string"
+        order_id:
+          type: "string"
+          description: "Amazon order ID. Will likely move to an array in later versions of this integration"
+        provider_id:
+          type: "string"
+          description: "ID of the financier - always 1 to indicate Affirm"
+        remove_tax:
+          type: "boolean"
+          description: "Always false in our integration"
+        status:
+          type: "string"
+          enum:
+            - "authorized"
+            - "auth_expired"
+            - "captured"
+            - "confirmed"
+            - "partially_refunded"
+            - "refunded"
+            - "voided"
+            - "partial_void"
+        metadata:
+          $ref: "#/components/schemas/AffirmPaymentExecutionRequestMetaData"
+        events:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TransactionEvent"
+    PlanInstallment:
+      required:
+        - "amount"
+        - "due_date"
+      type: "object"
+      properties:
+        amount:
+          type: "number"
+        due_date:
+          type: "string"
+      description: "Installment information of the plan"
+    Amount:
+      required:
+        - "total"
+      type: "object"
+      properties:
+        shipping:
+          type: "integer"
+        subtotal:
+          type: "integer"
+        tax:
+          type: "integer"
+        total:
+          type: "integer"
+      description: "Amount associated to the loan"
+    Buyer:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        billing_address:
+          $ref: "#/components/schemas/Address"
+        created_at:
+          type: "string"
+        date_of_birth:
+          type: "string"
+        email:
+          type: "string"
+        last_purchase_at:
+          type: "string"
+        name:
+          $ref: "#/components/schemas/BuyerName"
+        payment_instrument_count:
+          type: "integer"
+        phone_number:
+          type: "string"
+        purchase_count:
+          type: "integer"
+        ssn4:
+          type: "string"
+      description: "Buyer information of the loan"
+    Disclosure:
+      type: "object"
+      properties:
+        evidence:
+          type: "string"
+        id:
+          type: "string"
+        type:
+          type: "string"
+          enum:
+            - "loan_terms_and_rbp_als"
+            - "payment_authorization_auto_and_one_time_payment"
+            - "payment_authorization_installment_autopay"
+            - "payment_authorization_one_time_payment"
+      description: "Disclosure object containing evidence that the customer consented to legal agreements associated with the purchase"
+    Plan:
+      required:
+        - "apr"
+        - "fee_downpayment_rate"
+        - "fee_subsidy_rate"
+        - "fee_transaction_amount"
+        - "frequency"
+        - "id"
+        - "installments"
+        - "interval"
+        - "type"
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        type:
+          type: "array"
+          items:
+            enum:
+              - "installment_loan"
+              - "split_pay"
+              - "mdr_installment_loan"
+        apr:
+          type: "number"
+        downpayment_amount:
+          type: "number"
+        fee_downpayment_rate:
+          type: "number"
+        fee_subsidy_rate:
+          type: "number"
+        fee_transaction_amount:
+          type: "number"
+        frequency:
+          type: "string"
+          enum:
+            - "daily"
+            - "hourly"
+            - "monthly"
+            - "weekly"
+        interval:
+          type: "integer"
+        installments:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/PlanInstallment"
+        mdr_amount:
+          type: "number"
+        mdr_currency:
+          type: "string"
+      description: "Installment plan of the loan"
+    Item:
+      type: "object"
+      properties:
+        categories:
+          type: "array"
+          items:
+            type: "array"
+            items:  # This may be temporary, Affirm is assessing ability to just support an array of strings
+              type: "string"
+        display_name:
+          type: "string"
+        item_image_url:
+          type: "string"
+        item_risk:
+          type: "string"
+          enum:
+            - "low"
+            - "medium"
+            - "high"
+        item_url:
+          type: "string"
+        quantity:
+          type: "string"
+        unit_price:
+          type: "number"
+      description: "Object representing the item of the purchase"
+    Merchant:
+      required:
+        - "user_cancel_url"
+        - "user_confirmation_url"
+      type: "object"
+      properties:
+        user_cancel_url:
+          type: "string"
+        user_confirmation_url:
+          type: "string"
+        user_confirmation_url_action:
+          type: "string"
+          default: "GET"
+      description: "Information related to merchant"
+    BuyerName:
+      type: "object"
+      properties:
+        first:
+          type: "string"
+        last:
+          type: "string"
+        middle:
+          type: "string"
+        suffix:
+          type: "string"
+      description: "Name of the buyer"
+    NonRetailBuyerName:
+      required:
+        - "first"
+        - "last"
+        - "full"
+      properties:
+        first:
+          type: "string"
+        last:
+          type: "string"
+        full:
+          type: "string"
+      description: "Name of non retail buyer"
+    NonRetailAddress:
+      required:
+        - "street1"
+        - "city"
+        - "region1_code"
+        - "zipcode"
+        - "country_code"
+      type: "object"
+      properties:
+        city:
+          type: "string"
+        country_code:
+          type: "string"
+        street1:
+          type: "string"
+        street2:
+          type: "string"
+        region1_code:
+          type: "string"
+        zipcode:
+          type: "string"
+      description: "Information related to non retail buyer address"
+    NonRetailMerchant:
+      required:
+        - "public_api_key"
+        - "user_cancel_url"
+        - "user_confirmation_url"
+      type: "object"
+      properties:
+        public_api_key:
+          type: "string"
+        user_cancel_url:
+          type: "string"
+        user_confirmation_url:
+          type: "string"
+        user_confirmation_url_action:
+          type: "string"
+          default: "GET"
+        name:
+          type: "string"
+        use_vcn:
+          type: "boolean"
+      description: "Information related to non retail merchant"
+    NonRetailShippingAddress:
+      required:
+        - "name"
+        - "address"
+      properties:
+        name:
+          $ref: "#/components/schemas/NonRetailBuyerName"
+        address:
+          $ref: "#/components/schemas/NonRetailAddress"
+        phone_number:
+          type: "string"
+        email:
+          type: "string"
+      description: "Information related to non retail shipping address"
+    NonRetailBillingAddress:
+      required:
+        - "name"
+        - "address"
+      properties:
+        name:
+          $ref: "#/components/schemas/NonRetailBuyerName"
+        address:
+          $ref: "#/components/schemas/NonRetailAddress"
+        phone_number:
+          type: "string"
+        email:
+          type: "string"
+      description: "Information related to non retail billing address"
+    AffirmCreateLoanRequestMetaData:
+      required:
+        - "order_ids"
+        - "marketplace_id"
+        - "business_id"
+        - "locale"
+      type: "object"
+      properties:
+        business_id:
+          type: "string"
+        marketplace_id:
+          type: "string"
+        order_ids:
+          type: "array"
+          items:
+            type: "string"
+        locale:
+          type: "string"
+      description: "Metadata associated with the create loan request"
+    AffirmPaymentExecutionRequestMetaData:
+      required:
+        - "remittance_entries"
+      type: "object"
+      properties:
+        remittance_entries:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/AffirmRemittanceEntry"
+      description: "Metadata associated with the capture purchase request"
+    AffirmRemittanceEntry:
+      required:
+        - "amount"
+        - "match_key"
+        - "processing_division_id"
+      type: "object"
+      properties:
+        amount:
+          type: "number"
+        match_key:
+          type: "string"
+        processing_division_id:
+          type: "string"
+      description: "Remittance Entry with information about reconciliation in the remittance file"
+    AffirmReadCheckoutResponseMetadata:
+      type: "object"
+      properties:
+        checkout_channel_type:
+          type: "string"
+        mode:
+          type: "string"
+      description: "Metadata containing any additional data for AffirmReadCheckout Response"
+    AffirmReadCheckoutResponseMeta:
+      type: "object"
+      properties:
+        release:
+          type: "string"
+        user_timezone:
+          type: "string"
+        _affirm_tracking_uuid:
+          type: "string"
+      description: "Additional checkout metadata for AffirmReadCheckout Response"
+    mfp_rule_input_data:
+      type: "object"
+      properties:
+        metadata:
+          $ref: "#/components/schemas/AffirmReadCheckoutResponseMetadata"
+        financing_program:
+          type: "string"
+        total:
+          type: "integer"
+      description: "An item object containing data for multiple finance programs"
+    Promo:
+      required:
+        - "ala"
+        - "html_ala"
+      type: "object"
+      properties:
+        ala:
+          type: "string"
+        html_ala:
+          type: "string"
+    Offer:
+      required:
+        - "terms"
+      type: "object"
+      properties:
+        terms:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Terms"
+    Terms:
+      required:
+        - "downpayment_amount"
+        - "loan_type"
+        - "interest_amount"
+        - "billing_frequency"
+        - "apr"
+        - "installment_amount"
+        - "minimum_loan_amount"
+        - "amount"
+        - "installment_count"
+      type: "object"
+      properties:
+        downpayment_amount:
+          type: "number"
+        loan_type:
+          type: "string"
+        interest_amount:
+          type: "number"
+        billing_frequency:
+          type: "string"
+        apr:
+          type: "number"
+        installment_amount:
+          type: "number"
+        minimum_loan_amount:
+          type: "number"
+        amount:
+          type: "number"
+        installment_count:
+          type: "number"
+      description: "Terms offered for the loan amount"
+    ErrorResponse:
+      description: "Type representation of an errored response"
+      type: "object"
+      properties:
+        code:
+          type: "string"
+        status_code:
+          type: "integer"
+        message:
+          type: "string"
+        type:
+          type: "string"
+        field:
+          type: "string"
+        token:
+          type: "string"
+      required:
+        - code
+        - message
